@@ -1,12 +1,27 @@
-fastapi
-uvicorn
-pydantic
-python-dotenv
-PyJWT
+# Web Framework & Server
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
 
-tenacity
+# Database Engine & ORM
+sqlalchemy>=2.0.28
+greenlet>=3.0.3               # Required by SQLAlchemy for async task switching
 
-supabase
+# Database Drivers (PostgreSQL)
+asyncpg>=0.29.0              # Primary high-performance async driver (Runtime queries)
+psycopg[binary]>=3.1.18      # Primary sync driver (Alembic migrations & DDL inspection)
 
-pandas
-openpyxl
+# Schema Migrations
+alembic>=1.13.1              # Database migration framework
+
+# Environment & Data Validation
+pydantic>=2.6.0
+pydantic-settings>=2.2.1     # Validated config management from .env
+email-validator>=2.1.0       # Required for Pydantic EmailStr validation
+python-dotenv>=1.0.1         # .env parsing support
+
+# Auth & Resilience
+PyJWT>=2.8.0                 # JWT Token encoding/decoding
+tenacity>=8.2.3              # Retry logic for DB connections & transient failures
+
+# Third-party Integrations
+supabase>=2.3.0              # Supabase Client SDK (for Storage/Auth APIs if needed)
