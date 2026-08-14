@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     # --- Required variables (Must match keys in your .env) ---
     DATABASE_URL: str
+    SUPABASE_PROJECT_URL: str
+    SUPABASE_SERVICE_ROLE_KEY: str
 
     # Pydantic Settings Configuration
     model_config = SettingsConfigDict(

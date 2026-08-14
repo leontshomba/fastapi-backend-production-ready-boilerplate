@@ -2,9 +2,6 @@ from dotenv import load_dotenv
 import os
 from supabase import create_client, Client
 
-load_dotenv()
+from src.config.settings import settings
 
-SUPABASE_PROJECT_URL = os.getenv("SUPABASE_PROJECT_URL")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-
-supabase: Client = create_client(SUPABASE_PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY)
+supabase: Client = create_client(settings.SUPABASE_PROJECT_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
