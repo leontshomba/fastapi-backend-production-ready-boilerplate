@@ -1,39 +1,33 @@
-from src.llm_factory.gemini.gemini_client import GeminiClient
-from src.llm_factory.specialized_agents.rag_agents import get_query_trasformer
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
+import asyncio
 
-load_dotenv()
+from src.config.database import AsyncSessionLocal
+from src.services.database import insert_data
 
-# gemini = GeminiClient()
+from src.models.documents import Document
 
-# print("Process started...")
+data = {
+    "name": "Common-prod-bugs",
+    "description": "This document list common cloud environment productions bugs & how to fix them",
+    "category": "cloud",
+    "size": 14
+}
 
-# transformer = get_query_trasformer("narrow")
-# content = "Can you help me buy a residential property in downtown Seattle connected to fiber internet?"
+async def main ():
+    new_data = Document(
+        name=data["name"],
+        description=data["description"],
+        category=data["category"],
+        size=data["size"]
+    )    
 
+    print("Inserting...")
 
-# response = gemini.generate_content(instruction=transformer, content=content)
+    async with AsyncSessionLocal() as db:
+        result = await insert_data(db=db, model=new_data)
 
-# print(response)
+    print("Inserted data ID: ", result.id)
+    print("Data: ", result.to_dict())
 
-# print("Process finished.")
+if __name__ == "__main__":
+    asyncio.run(main())
 
-SUPABASE_PROJECT_URL = os.getenv("SUPABASE_PROJECT_URL")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-
-print("Starting...")
-
-supabase: Client = create_client(SUPABASE_PROJECT_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-params = [
-    "title",
-    "description",
-]
-
-res = supabase.table("tasks").select(", ".join(params)).execute()
-
-print(res.data)
-
-print("Finished.")

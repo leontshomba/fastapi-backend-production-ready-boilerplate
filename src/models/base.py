@@ -34,7 +34,7 @@ class UUIDMixin:
     )
 
 
-class TimestampsMixin:
+class TimestampMixin:
     """Mixin that adds timezone-aware created_at and updated_at columns."""
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -53,12 +53,12 @@ class TimestampsMixin:
 # Combined base model
 # ---------------------------------------------------------
 
-class BaseModel(Base, UUIDMixin, TimestampsMixin):
+class BaseModel(Base, UUIDMixin, TimestampMixin):
     """
     Abstract Master Model combining UUID + Timestamps.
     Inherit from this for 95% of standard domain entities (User, Product, etc.).
     """
-    _abstract_ = True
+    __abstract__ = True
 
 
     
