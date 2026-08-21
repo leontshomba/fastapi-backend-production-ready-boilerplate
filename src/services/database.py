@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.base import Base, BaseModel
 
 # =======================================
-# 1. Create
+# 1. Create Data
 # =======================================
 
 async def insert_data(
@@ -39,9 +39,9 @@ async def insert_batch(
     return data_batch
 
 # =======================================
-# 2. Read
+# 2. Read Data
 # =======================================
-async def read_by_id(
+async def get_data_by_id(
     db: AsyncSession,
     data_id: uuid.UUID,
     Model: Type[BaseModel]
@@ -53,7 +53,19 @@ async def read_by_id(
 
     if data is None:
         print(f"No data with the id '{data_id}' in table: {Model}")
-        
+
         return None
 
     return data
+
+async def get_all_data(
+    db: AsyncSession,
+    skip: int,
+    limit: int,
+    Model: Type[BaseModel]
+) -> BaseModel:
+    stmt = select(Model).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+
+
+    return result.scalars().all()

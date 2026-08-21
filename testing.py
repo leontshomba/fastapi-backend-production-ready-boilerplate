@@ -1,7 +1,7 @@
 import asyncio
 
 from src.config.database import AsyncSessionLocal
-from src.services.database import insert_data, insert_batch
+from src.services.database import get_all_data
 
 from src.models.documents import Document
 from data.docs import sample_documents
@@ -16,12 +16,15 @@ data = {
 async def main ():
     # new_data = Document(**data)    
 
-    print("Inserting...")
+    print("Processing...")
 
     async with AsyncSessionLocal() as db:
-        result = await insert_batch(db, sample_documents, Document)
+        res = await get_all_data(db, 0, 5, Document)
 
-    print(f"Successfully inserted {len(result)} documents!")
+    if res:
+        print(f"Successfully fetched {len(res)} documents!")
+    else:
+        print("Result is empty")
 
 if __name__ == "__main__":
     asyncio.run(main())
