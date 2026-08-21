@@ -1,9 +1,10 @@
 import asyncio
 
 from src.config.database import AsyncSessionLocal
-from src.services.database import insert_data
+from src.services.database import insert_data, insert_batch
 
 from src.models.documents import Document
+from data.docs import sample_documents
 
 data = {
     "name": "Common-prod-bugs",
@@ -13,20 +14,14 @@ data = {
 }
 
 async def main ():
-    new_data = Document(
-        name=data["name"],
-        description=data["description"],
-        category=data["category"],
-        size=data["size"]
-    )    
+    # new_data = Document(**data)    
 
     print("Inserting...")
 
     async with AsyncSessionLocal() as db:
-        result = await insert_data(db=db, model=new_data)
+        result = await insert_batch(db, sample_documents, Document)
 
-    print("Inserted data ID: ", result.id)
-    print("Data: ", result.to_dict())
+    print(f"Successfully inserted {len(result)} documents!")
 
 if __name__ == "__main__":
     asyncio.run(main())
