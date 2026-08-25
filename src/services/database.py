@@ -1,7 +1,8 @@
 from typing import Type, Sequence
 import uuid
+from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.base import Base, BaseModel
@@ -69,3 +70,61 @@ async def get_all_data(
 
 
     return result.scalars().all()
+
+# =======================================
+# 2. Update Data
+# =======================================
+async def update_data_with_refresh(
+    db: AsyncSession,
+    data: dict,
+    item_id: uuid.UUID,
+    Model: Type[BaseModel]
+) -> BaseModel:
+    model_data = db.get(Model, item_id)
+
+    for key, value in data.items:
+        if hasattr(model_data, key):
+            setattr(model_data, key, value)
+
+    await db.commit()
+    await db.refresh(model_data)
+
+    return model_data
+
+async def update_data_without_refresh(
+    db: AsyncSession,
+    data: dict,
+    item_id: uuid.UUID,
+    Model: Type[BaseModel]
+) -> BaseModel:
+    model_data = db.get(Model, item_id)
+
+    for key, value in data.items:
+        if hasattr(model_data, key):
+            setattr(model_data, key, value)
+
+    await db.commit()
+
+    return model_data
+
+
+async def direct_update(
+    db: AsyncSession,
+    data: dict,
+    item_id: uuid.UUID,
+    Model: Type[BaseModel]
+) -> BaseModel:
+
+    data["updated_at"] = datetime.now(timezone.utc)
+
+    stmt = (
+        update(Model)
+        .where(Model.id == item_id)
+        .values(**data)
+        .returning(Model)
+    )
+
+    result = await db.execute(stmt)
+    await db.commit()
+
+    return result.scalar_one()
