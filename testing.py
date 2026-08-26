@@ -1,7 +1,7 @@
 import asyncio
 
 from src.config.database import AsyncSessionLocal
-from src.services.database import direct_update
+from src.services.database import delete_data
 
 from src.models.documents import Document
 from data.docs import sample_documents
@@ -19,10 +19,10 @@ async def main ():
     print("Processing...")
 
     async with AsyncSessionLocal() as db:
-        res = await direct_update(db, data, id, Document)
+        res = await delete_data(db, id, Document)
 
     if res:
-        print(f"Successfully updated document with name: {res.name}")
+        print(f"Successfully deleted document with id: {res}")
     else:
         print("Result is empty")
 

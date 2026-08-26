@@ -2,7 +2,7 @@ from typing import Type, Sequence
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.base import Base, BaseModel
@@ -104,6 +104,23 @@ async def direct_update(
         .where(Model.id == item_id)
         .values(**data)
         .returning(Model)
+    )
+
+    result = await db.execute(stmt)
+    await db.commit()
+
+    return result.scalar_one()
+
+async def delete_data(
+    db: AsyncSession,
+    item_id: uuid.UUID,
+    Model: Type[BaseModel]
+) -> uuid.UUID:
+    
+    stmt = (
+        delete(Model)
+        .where(Model.id == item_id)
+        .returning(Model.id)
     )
 
     result = await db.execute(stmt)
