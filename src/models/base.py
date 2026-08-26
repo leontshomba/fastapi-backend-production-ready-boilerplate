@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 import uuid
 
-from sqlalchemy import DateTime, func, text, types
+from sqlalchemy import DateTime, func, text, types, FetchedValue
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
@@ -45,7 +45,7 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        server_onupdate=func.now(),
+        server_onupdate=FetchedValue(),
         nullable=False
     )
 

@@ -91,22 +91,6 @@ async def update_data_with_refresh(
 
     return model_data
 
-async def update_data_without_refresh(
-    db: AsyncSession,
-    data: dict,
-    item_id: uuid.UUID,
-    Model: Type[BaseModel]
-) -> BaseModel:
-    model_data = db.get(Model, item_id)
-
-    for key, value in data.items:
-        if hasattr(model_data, key):
-            setattr(model_data, key, value)
-
-    await db.commit()
-
-    return model_data
-
 
 async def direct_update(
     db: AsyncSession,
@@ -114,8 +98,6 @@ async def direct_update(
     item_id: uuid.UUID,
     Model: Type[BaseModel]
 ) -> BaseModel:
-
-    data["updated_at"] = datetime.now(timezone.utc)
 
     stmt = (
         update(Model)

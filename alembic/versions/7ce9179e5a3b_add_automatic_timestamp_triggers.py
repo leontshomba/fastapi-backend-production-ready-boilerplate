@@ -1,8 +1,8 @@
 """add_automatic_timestamp_triggers
 
-Revision ID: 5a324449c8da
+Revision ID: 7ce9179e5a3b
 Revises: 74de74a58414
-Create Date: 2026-08-25 23:43:47.052243
+Create Date: 2026-08-26 17:23:10.457170
 
 """
 from typing import Sequence, Union
@@ -12,17 +12,14 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '5a324449c8da'
+revision: str = '7ce9179e5a3b'
 down_revision: Union[str, Sequence[str], None] = '74de74a58414'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    """Upgrade schema."""
-
-    # --- TASK 1: Create the "Clock Worker" Function ---
-    # This tells Postgres how to update a timestamp.
+    # --- TASK 1: The Function (Separate call) ---
     op.execute("""
     CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS $$
@@ -33,9 +30,7 @@ def upgrade() -> None:
     $$ LANGUAGE plpgsql;
     """)
 
-    # --- TASK 2: Fix All Existing Tables ---
-    # This loops through your database right now. If a table has an 'updated_at' column,
-    # it assigns our "Clock Worker" to watch it.
+    # --- TASK 2: The Existing Tables (Separate call) ---
     op.execute("""
     DO $$
     DECLARE
@@ -58,9 +53,7 @@ def upgrade() -> None:
     END $$;
     """)
 
-    # --- TASK 3: Automate All Future Tables ---
-    # This sets up a "Manager" inside Postgres. Whenever you build a new table in the future,
-    # the manager checks if it has 'updated_at' and assigns a "Clock Worker" immediately.
+    # --- TASK 3 part A: The Event Trigger Function ---
     op.execute("""
     CREATE OR REPLACE FUNCTION auto_add_updated_at_trigger()
     RETURNS event_trigger AS $$
@@ -88,13 +81,15 @@ def upgrade() -> None:
         END LOOP;
     END;
     $$ LANGUAGE plpgsql;
+    """)
 
+    # --- TASK 3 part B: The actual Event Trigger (Separate call) ---
+    op.execute("""
     CREATE EVENT TRIGGER tg_auto_add_updated_at
     ON ddl_command_end
     WHEN tag IN ('CREATE TABLE')
     EXECUTE FUNCTION auto_add_updated_at_trigger();
     """)
-
 
 
 def downgrade() -> None:
