@@ -6,12 +6,12 @@ from src.services.database import delete_data
 from src.models.documents import Document
 from data.docs import sample_documents
 
-data = {
-    "name": "kubernetes-security",
-    "description": "A comprehensive guide at securing production kubernetes clusters."
-}
+# data = {
+#     "name": "kubernetes-security",
+#     "description": "A comprehensive guide at securing production kubernetes clusters."
+# }
 
-id = "111c889e-506a-4f9d-9b64-3a5dabe119b5"
+id = "19ac7246-44b4-4e8e-8dd1-87d28b99815f"
 
 async def main ():
     # new_data = Document(**data)    
