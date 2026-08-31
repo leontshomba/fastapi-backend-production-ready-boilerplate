@@ -59,7 +59,7 @@ AsyncSessionLocal = async_sessionmaker(
 # 4. DEPENDENCY INJECTION FOR FASTAPI ROUTES
 # =====================================================================
 async def get_db() -> AsyncGenerator [AsyncSession, None]:
-    async with AsyncSessionLocal as session:
+    async with AsyncSessionLocal() as session:
         try:
             yield session
         except:

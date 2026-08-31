@@ -56,9 +56,8 @@ class TimestampMixin:
 class BaseModel(Base, UUIDMixin, TimestampMixin):
     """
     Abstract Master Model combining UUID + Timestamps.
-    Inherit from this for 95% of standard domain entities (User, Product, etc.).
+    Inherit from this for 95% of standard domain entities (User, Product, Document, etc.).
     """
     __abstract__ = True
 
 
-    

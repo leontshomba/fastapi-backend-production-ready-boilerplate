@@ -1,15 +1,17 @@
 import asyncio
 
 from src.config.database import AsyncSessionLocal
-from src.services.database import delete_data
+from src.services.database_service import DatabaseService
 
 from src.models.documents import Document
 from data.docs import sample_documents
 
-# data = {
-#     "name": "kubernetes-security",
-#     "description": "A comprehensive guide at securing production kubernetes clusters."
-# }
+data = {
+    "name": "k8s-optimization-tips",
+    "description": "A comprehensive guide at optimizing prroduction k8s clusters in production.",
+    "category": "devops",
+    "size": 27
+}
 
 id = "19ac7246-44b4-4e8e-8dd1-87d28b99815f"
 
@@ -19,10 +21,11 @@ async def main ():
     print("Processing...")
 
     async with AsyncSessionLocal() as db:
-        res = await delete_data(db, id, Document)
+        service = DatabaseService(db)
+        res = await service.insert_data(Document, data)
 
     if res:
-        print(f"Successfully deleted document with id: {res}")
+        print(f"Successfully deleted document with id: {res.to_dict()}")
     else:
         print("Result is empty")
 
