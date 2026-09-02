@@ -1,7 +1,8 @@
 from typing import TypeVar, Type, Sequence, Optional
 import uuid
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import insert, select, update, delete
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.base import Base
@@ -26,31 +27,56 @@ class DatabaseService():
     # =======================================
     # 1. Create Data
     # =======================================
+    async def add_data(
+        self,
+        Model: Type[T],
+        data: dict,
+    ) -> T:
+        #This function relies on the ORM Unit of Work pattern for data insertion
+        instance = Model(**data)
+
+        self.db.add(instance)
+        await self.db.flush()
+
+        return instance
+
+
     async def insert_data(
         self,
         Model: Type[T],
         data: dict,
     ) -> T:
-        instance = Model(**data)
+        #This function does direct insertion
+        stmt = insert(Model).values(**data)
+        result = await self.db.execute(stmt)
 
-        self.db.add(instance)
-        await self.db.flush()
-        # await self.db.refresh(instance)
-
-        return instance
+        return result.scalar_one_or_none()
 
 
     async def insert_batch(
         self,
-        data_list: list,
-        Model: Type[T]
-    ) -> Sequence[T]:
-        data_batch = [Model(**data) for data in data_list]
+        Model: Type[T],
+        data_list: list[dict],
+        # For idempotent insertion
+        unique_column_name: str
+    ) -> bool:
 
-        self.db.add_all(data_batch)
-        self.db.flush()
+        payloads = [item for item in data_list]
 
-        return data_batch
+        target_constraint_column = getattr(Model, unique_column_name)
+
+        stmt = (
+            pg_insert(Model)
+            .values(payloads)
+            .on_conflict_do_nothing(
+                index_elements=[target_constraint_column]
+            )
+            .returning(target_constraint_column)
+        )
+
+        result = await self.db.execute(stmt)
+
+        return len(result.scalars().all())
 
     # =======================================
     # 2. Read Data

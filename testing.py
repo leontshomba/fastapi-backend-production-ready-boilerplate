@@ -20,14 +20,14 @@ async def main ():
 
     print("Processing...")
 
-    async with AsyncSessionLocal() as db:
-        service = DatabaseService(db)
-        res = await service.insert_data(Document, data)
+    # async with AsyncSessionLocal() as db:
+    #     service = DatabaseService(db)
+    #     res = await service.insert_data(Document, data)
 
-    if res:
-        print(f"Successfully deleted document with id: {res.to_dict()}")
-    else:
-        print("Result is empty")
+    # if res:
+    #     print(f"Successfully inserted document with id: {res.to_dict()}")
+    # else:
+    #     print("Result is empty")
 
 if __name__ == "__main__":
     asyncio.run(main())
