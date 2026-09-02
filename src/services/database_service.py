@@ -16,6 +16,7 @@ class DatabaseService():
 
 
     async def save(self):
+        """Commits the current transaction. Used as the final 'seal' in the Controller."""
         try:
             await self.db.commit()
         except Exception as e:
@@ -47,7 +48,7 @@ class DatabaseService():
         data: dict,
     ) -> T:
         #This function does direct insertion
-        stmt = insert(Model).values(**data)
+        stmt = insert(Model).values(**data).returning(Model)
         result = await self.db.execute(stmt)
 
         return result.scalar_one_or_none()
@@ -59,7 +60,7 @@ class DatabaseService():
         data_list: list[dict],
         # For idempotent insertion
         unique_column_name: str
-    ) -> bool:
+    ) -> int:
 
         payloads = [item for item in data_list]
 
@@ -83,8 +84,8 @@ class DatabaseService():
     # =======================================
     async def get_data_by_id(
         self,
-        data_id: uuid.UUID,
-        Model: Type[T]
+        Model: Type[T],
+        data_id: uuid.UUID
     ) -> Optional[T]:
         stmt = select(Model).where(Model.id == data_id)
         result = await self.db.execute(stmt)
@@ -128,26 +129,27 @@ class DatabaseService():
         )
 
         result = await self.db.execute(stmt)
-        await self.db.commit()
 
         return result.scalar_one_or_none()
 
 
-    async def update_data_with_refresh(
+    async def update_orm(
         self,
         data: dict,
         item_id: uuid.UUID,
         Model: Type[T]
     ) -> Optional[T]:
-        model_data = self.db.get(Model, item_id)
+        """ORM-based update. Best when you need to verify existing state before changing."""
+
+        model_data = await self.db.get(Model, item_id)
+        if not model_data:
+            return None
 
         for key, value in data.items():
             if hasattr(model_data, key):
                 setattr(model_data, key, value)
 
-        await self.db.commit()
-        await self.db.refresh(model_data)
-
+        await self.db.flush()
         return model_data
 
     # =======================================
@@ -166,6 +168,5 @@ class DatabaseService():
         )
 
         result = await self.db.execute(stmt)
-        await self.db.commit()
 
-        return result.scalar_one()
+        return result.scalar_one_or_none()
