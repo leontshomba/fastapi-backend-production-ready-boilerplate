@@ -12,7 +12,7 @@ class DocumentsController(DatabaseService):
 
 
     async def get_all_documents(self, skip: int, limit: int):
-        doc_data = await self.get_all_data(Document, skip, limit)
+        doc_data = await self.fetch_all_data_all_data(Document, skip, limit)
 
         return {
             "success": True,
@@ -21,7 +21,7 @@ class DocumentsController(DatabaseService):
         }
 
     async def get_document_by_id(self, id: uuid.UUID):
-        doc_data = await self.get_data_by_id(Document, id)
+        doc_data = await self.fetch_data_by_id(Document, id)
 
         return {
             "success": True,

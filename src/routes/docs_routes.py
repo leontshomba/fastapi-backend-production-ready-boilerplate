@@ -11,7 +11,7 @@ from src.schemas.document_schemas import DocumentUpload
 router = APIRouter()
 
 @router.get("/list")
-async def get_document_by_id(
+async def get_all_documents(
     # Pagination parameters
     skip: int,
     limit: int,

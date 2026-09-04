@@ -82,7 +82,7 @@ class DatabaseService():
     # =======================================
     # 2. Read Data
     # =======================================
-    async def get_data_by_id(
+    async def fetch_data_by_id(
         self,
         Model: Type[T],
         data_id: uuid.UUID
@@ -100,7 +100,7 @@ class DatabaseService():
         return data
 
 
-    async def get_all_data(
+    async def fetch_all_data(
         self,
         Model: Type[T],
         skip: int,
