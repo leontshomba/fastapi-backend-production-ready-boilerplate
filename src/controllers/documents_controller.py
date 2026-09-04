@@ -10,10 +10,18 @@ class DocumentsController(DatabaseService):
     def __init__(self, db_session):
         super().__init__(db_session)
 
+
+    async def get_all_documents(self, skip: int, limit: int):
+        doc_data = await self.get_all_data(Document, skip, limit)
+
+        return {
+            "success": True,
+            "Message": f"{len(doc_data)} documents fetched successfully",
+            "data": doc_data
+        }
+
     async def get_document_by_id(self, id: uuid.UUID):
         doc_data = await self.get_data_by_id(Document, id)
-
-        print(doc_data)
 
         return {
             "success": True,

@@ -10,6 +10,17 @@ from src.schemas.document_schemas import DocumentUpload
 
 router = APIRouter()
 
+@router.get("/list")
+async def get_document_by_id(
+    # Pagination parameters
+    skip: int,
+    limit: int,
+    db_session: AsyncSession = Depends(get_db)
+):
+    controller = DocumentsController(db_session)
+
+    return await controller.get_all_documents(skip, limit)
+
 @router.get("/{id}")
 async def get_document_by_id(
     id: uuid.UUID,

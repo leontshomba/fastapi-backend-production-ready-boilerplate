@@ -102,9 +102,9 @@ class DatabaseService():
 
     async def get_all_data(
         self,
+        Model: Type[T],
         skip: int,
-        limit: int,
-        Model: Type[T]
+        limit: int
     ) -> Sequence[T]:
         stmt = select(Model).offset(skip).limit(limit)
         result = await self.db.execute(stmt)
