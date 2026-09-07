@@ -5,7 +5,7 @@ import uuid
 
 from src.config.database import get_db
 from src.controllers.documents_controller import DocumentsController
-from src.schemas.document_schemas import DocumentUpload
+from src.schemas.document_schemas import DocumentUpload, DocumentUpdate
 
 
 router = APIRouter()
@@ -32,10 +32,31 @@ async def get_document_by_id(
 
 
 @router.post("/")
-async def get_document_by_id(
+async def upload_document(
     upload_data: DocumentUpload = Body(...),
     db_session: AsyncSession = Depends(get_db)
 ):
     controller = DocumentsController(db_session)
 
     return await controller.upload_document(upload_data)
+
+
+@router.patch("/{id}")
+async def update_document(
+    id: uuid.UUID,
+    update_data: DocumentUpdate = Body(...),
+    db_session: AsyncSession = Depends(get_db)
+):
+    controller = DocumentsController(db_session)
+
+    return await controller.update_document(update_data, id)
+
+
+@router.delete("/{id}")
+async def update_document(
+    id: uuid.UUID,
+    db_session: AsyncSession = Depends(get_db)
+):
+    controller = DocumentsController(db_session)
+
+    return await controller.delete_document(id)

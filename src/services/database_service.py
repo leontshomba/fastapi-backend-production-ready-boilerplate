@@ -114,11 +114,11 @@ class DatabaseService():
     # =======================================
     # 2. Update Data
     # =======================================
-    async def direct_update(
+    async def update_data(
         self,
+        Model: Type[T],
         data: dict,
-        item_id: uuid.UUID,
-        Model: Type[T]
+        item_id: uuid.UUID
     ) -> Optional[T]:
 
         stmt = (
@@ -157,8 +157,8 @@ class DatabaseService():
     # =======================================
     async def delete_data(
         self,
-        item_id: uuid.UUID,
-        Model: Type[T]
+        Model: Type[T],
+        item_id: uuid.UUID
     ) -> uuid.UUID:
         
         stmt = (
