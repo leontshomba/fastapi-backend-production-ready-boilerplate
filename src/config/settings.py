@@ -5,12 +5,12 @@ class Settings(BaseSettings):
     # --- Default variables ---
     # App's settings
     PROJECT_NAME: str = "FastAPI Production Boilerplate"
-    ENVIRONMENT: str = "production"  # Must be 'development' in local .env
+    ENVIRONMENT: str = "development"  # Must be 'development' in local .env
     DEBUG: bool = False         # Must be True in local .env
 
     # --- Required variables (Must match keys in your .env) ---
     DATABASE_URL: str
-    # SUPABASE_PROJECT_URL: str
+    SUPABASE_URL: str
     # SUPABASE_SERVICE_ROLE_KEY: str
 
     # Pydantic Settings Configuration

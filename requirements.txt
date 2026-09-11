@@ -21,6 +21,7 @@ python-dotenv>=1.0.1         # .env parsing support
 
 # Auth & Resilience
 PyJWT>=2.8.0                 # JWT Token encoding/decoding
+PyJWT[crypto]
 tenacity>=8.2.3              # Retry logic for DB connections & transient failures
 
 # Third-party Integrations
