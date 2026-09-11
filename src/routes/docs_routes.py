@@ -21,6 +21,7 @@ async def get_all_documents(
 
     return await controller.get_all_documents(skip, limit)
 
+
 @router.get("/{id}")
 async def get_document_by_id(
     id: uuid.UUID,
