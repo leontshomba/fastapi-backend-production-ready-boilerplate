@@ -65,7 +65,8 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             request.state.user = {
                 "id": payload['sub'],
                 "email": payload['email'],
-                "email_verified": payload['user_metadata']['email_verified']
+                "email_verified": payload['user_metadata']['email_verified'],
+                "role": payload['user_role']
             }
 
             print(f"AYE UYU: {request.state.user}")

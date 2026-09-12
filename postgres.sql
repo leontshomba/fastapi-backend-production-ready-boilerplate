@@ -65,36 +65,42 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- 1. Clear out the old version completely
+drop function if exists public.custom_access_token_hook(jsonb);
 
--- 1. CREATE HOOK FOR JWT TOKEN PAYLOAD CUSTOMIZATION
+-- 2. Create the precise, isolated version
 create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb
 language plpgsql
 stable
-security definer -- CRITICAL: Allows the hook to read public.profiles
-set search_path = '' -- Best practice for security definer functions
+security definer 
+set search_path = ''
 as $$
 declare
-  current_role text;
+  user_uuid uuid;
+  fetched_role text;
   claims jsonb;
 begin
-  -- Fetch the role from your custom user profiles table
-  select role into current_role 
-  from public.profiles 
-  where id = cast(event->>'user_id' as uuid);
+  -- Explicitly extract and cast the user_id from the event payload
+  user_uuid := cast(event->>'user_id' as uuid);
 
-  -- Isolate the claims object from the event payload
+  -- Target public.profiles explicitly to prevent picking up system session info
+  select public.profiles.role into fetched_role 
+  from public.profiles 
+  where public.profiles.id = user_uuid;
+
+  -- Grab the existing claims object from the event payload
   claims := event->'claims';
 
-  -- Inject the role directly into the claims object (Recommended pattern)
-  claims := jsonb_set(claims, '{user_role}', to_jsonb(coalesce(current_role, 'user')));
+  -- Inject the role cleanly. Coalesce ensures it defaults to 'user' if null
+  claims := jsonb_set(claims, '{user_role}', to_jsonb(coalesce(fetched_role, 'user')));
 
-  -- Update the original event payload with the modified claims object
+  -- Overwrite only the claims sub-object in the event payload
   event := jsonb_set(event, '{claims}', claims);
 
   return event;
 end;
 $$;
 
--- 2. Grant permissions to the Supabase auth server to run this function
+-- 3. Regrant execution permission
 grant execute on function public.custom_access_token_hook to supabase_auth_admin;
