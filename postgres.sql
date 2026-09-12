@@ -43,7 +43,7 @@ begin
     assigned_role := 'admin';
   else
     assigned_role := 'user';
-  endif;
+  end if;
 
   -- 3. Insert the concrete profile row with the determined role
   insert into public.profiles (id, first_name, last_name, role)
@@ -51,13 +51,15 @@ begin
     new.id,
     new.raw_user_meta_data->>'first_name',
     new.raw_user_meta_data->>'last_name',
-    assigned_role,
+    assigned_role
   );
 
   return new;
 end;
 $$ language plpgsql security definer;
 
+-- Drop trigger first to avoid "already exists" errors if re-running
+drop trigger if exists on_auth_user_created on auth.users;
 
 create trigger on_auth_user_created
   after insert on auth.users
@@ -69,22 +71,26 @@ create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb
 language plpgsql
 stable
+security definer -- CRITICAL: Allows the hook to read public.profiles
+set search_path = '' -- Best practice for security definer functions
 as $$
 declare
   current_role text;
+  claims jsonb;
 begin
   -- Fetch the role from your custom user profiles table
-  -- (Adjust the table and column names to match yours)
   select role into current_role 
   from public.profiles 
   where id = cast(event->>'user_id' as uuid);
 
-  -- Inject the role into the token's user_claims field
-  event := jsonb_set(
-    event, 
-    '{claims, user_role}', 
-    to_jsonb(current_role)
-  );
+  -- Isolate the claims object from the event payload
+  claims := event->'claims';
+
+  -- Inject the role directly into the claims object (Recommended pattern)
+  claims := jsonb_set(claims, '{user_role}', to_jsonb(coalesce(current_role, 'user')));
+
+  -- Update the original event payload with the modified claims object
+  event := jsonb_set(event, '{claims}', claims);
 
   return event;
 end;
