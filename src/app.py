@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from src.config.settings import settings
 
-from src.middlewares.auth_middleware import AuthenticationMiddleware
+from src.middlewares.auth.supabase_auth_middleware import SupabaseAuthenticationMiddleware
 
 from src.routes import docs_routes
 from src.lib.swagger_auth import custom_openapi
@@ -19,7 +19,7 @@ app = FastAPI(
 if settings.ENVIRONMENT == "development":
     app.openapi = lambda: custom_openapi(app)
 
-app.add_middleware(AuthenticationMiddleware)
+app.add_middleware(SupabaseAuthenticationMiddleware)
 
 @app.get("/api/health_check")
 def health_check():

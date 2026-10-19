@@ -20,13 +20,14 @@ SUPPORTED_ALGORITHMS = ["ES256", "EdDSA", "RS256"]
 public_routes = ("/public", "webhooks")
 
 
-class AuthenticationMiddleware(BaseHTTPMiddleware):
+class SupabaseAuthenticationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # Whitelist Public Routes
         if request.url.path in [
             "/docs",
             "/openapi.json",
             "/redoc",
+            # "/api/health_check"
         ] or request.url.path.startswith(public_routes):
             return await call_next(request)
 
@@ -61,7 +62,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
 
             print(f"User authenticated successfully: {token_log}")
             
-            # Optional: Attach the payload or user_id to request state for downstream routes
+            # Optional: Attach the pay'load or user_id to request state for downstream routes
             request.state.user = {
                 "id": payload['sub'],
                 "email": payload['email'],
