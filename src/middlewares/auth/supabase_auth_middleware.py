@@ -31,6 +31,8 @@ class SupabaseAuthenticationMiddleware(BaseHTTPMiddleware):
         ] or request.url.path.startswith(public_routes):
             return await call_next(request)
 
+        print(f"request_id = {request.state.request_id}; correlation_id = {request.state.correlation_id}")
+
         # Get Authorization Header
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
